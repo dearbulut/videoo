@@ -242,9 +242,16 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
 
 //Site
 
-Route::get('/', 'IndexController@index');
+Route::get('/', 'XtreamController@showLoginForm')->name('login');
+Route::post('/login', 'XtreamController@login')->name('xtream.login');
 
-Route::get('collections/{slug}/{id}', 'IndexController@home_collections');
+Route::middleware(['xtream.auth'])->group(function () {
+    Route::get('/dashboard', 'XtreamController@getLiveTV')->name('dashboard');
+    Route::get('/live-tv', 'XtreamController@getLiveTV')->name('live.tv');
+    Route::get('/movies', 'XtreamController@getMovies')->name('movies');
+    Route::get('/series', 'XtreamController@getSeries')->name('series');
+    Route::get('/series/{id}', 'XtreamController@getSeriesInfo')->name('series.info');
+});
 
 Route::get('movies', 'MoviesController@movies');
 Route::get('movies/details/{slug}/{id}', 'MoviesController@movies_details');
