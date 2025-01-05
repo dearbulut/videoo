@@ -242,9 +242,61 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
 
 //Site
 
-Route::get('/', 'IndexController@index');
+Route::get('/', 'XtreamController@showLoginForm')->name('login');
+Route::post('/login', 'XtreamController@login')->name('xtream.login');
 
-Route::get('collections/{slug}/{id}', 'IndexController@home_collections');
+Route::middleware(['xtream.auth'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', 'XtreamController@getLiveTV')->name('dashboard');
+    
+    // Live TV Routes
+    Route::prefix('live-tv')->group(function () {
+        Route::get('/', 'XtreamController@getLiveTV')->name('live.tv');
+        Route::get('/categories', 'XtreamController@getLiveCategories')->name('live.categories');
+        Route::get('/category/{id}', 'XtreamController@getLiveTV')->name('live.category');
+        Route::get('/epg/{id}', 'XtreamController@getLiveEPG')->name('live.epg');
+    });
+    
+    // Movies Routes
+    Route::prefix('movies')->group(function () {
+        Route::get('/', 'XtreamController@getMovies')->name('movies');
+        Route::get('/categories', 'XtreamController@getVODCategories')->name('movies.categories');
+        Route::get('/category/{id}', 'XtreamController@getMovies')->name('movies.category');
+        Route::get('/{id}', 'XtreamController@getMovieInfo')->name('movies.info');
+    });
+    
+    // Series Routes
+    Route::prefix('series')->group(function () {
+        Route::get('/', 'XtreamController@getSeries')->name('series');
+        Route::get('/categories', 'XtreamController@getSeriesCategories')->name('series.categories');
+        Route::get('/category/{id}', 'XtreamController@getSeries')->name('series.category');
+        Route::get('/{id}', 'XtreamController@getSeriesInfo')->name('series.info');
+    });
+    
+    // Catchup Routes
+    Route::prefix('catchup')->group(function () {
+        Route::get('/', 'XtreamController@getCatchupChannels')->name('catchup');
+        Route::get('/epg/{id}', 'XtreamController@getCatchupEPG')->name('catchup.epg');
+        Route::get('/play/{id}', 'XtreamController@playCatchup')->name('catchup.play');
+    });
+    
+    // Account Routes
+    Route::prefix('account')->group(function () {
+        Route::get('/info', 'XtreamController@getAccountInfo')->name('account.info');
+    });
+    
+    // M3U Routes
+    Route::prefix('m3u')->group(function () {
+        Route::get('/playlist', 'XtreamController@getM3U')->name('m3u.playlist');
+        Route::get('/categories', 'XtreamController@getM3UWithCategories')->name('m3u.categories');
+    });
+    
+    // Search Route
+    Route::get('/search', 'XtreamController@search')->name('search');
+    
+    // XUI Panel Route
+    Route::get('/panel', 'XtreamController@getXUIPanel')->name('panel');
+});
 
 Route::get('movies', 'MoviesController@movies');
 Route::get('movies/details/{slug}/{id}', 'MoviesController@movies_details');
